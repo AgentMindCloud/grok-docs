@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "grok-update.yaml",
+  "description": "Official schema for grok-update.yaml – v1.2.0",
+  "type": "object",
+  "required": ["version", "author", "compatibility"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
+    "author": { "type": "string" },
+    "compatibility": { "type": "array", "items": { "type": "string" } },
+    "updates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "sources": { "type": "array", "items": { "type": "string" } },
+          "frequency": { "type": "string" }
+        }
+      }
+    }
+  }
+}
