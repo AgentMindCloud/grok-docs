@@ -92,4 +92,4 @@ refine). Same structure; the workflow file carries the control flow.
 - `tools` are cross-validated against `grok-security.yaml`. Listing a
   tool here that isn't permitted there is a hard error.
 
-Schema: [`grok-agent.schema.json`](../assets/schemas/latest/grok-agent.schema.json)
+Schema: [`grok-agent.schema.json`](../assets/schemas/v2.12/grok-agent.schema.json)

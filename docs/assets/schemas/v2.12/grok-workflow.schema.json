@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/latest/grok-workflow.schema.json",
+  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/v2.12/grok-workflow.schema.json",
   "title": "grok-workflow.yaml",
   "description": "Multi-step / multi-agent orchestration.",
   "type": "object",

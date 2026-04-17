@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/latest/grok-security.schema.json",
+  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/v2.12/grok-security.schema.json",
   "title": "grok-security.yaml",
   "description": "Safety profile, permissions, and rate limits for an agent.",
   "type": "object",

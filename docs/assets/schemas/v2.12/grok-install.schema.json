@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/latest/grok-install.schema.json",
+  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/v2.12/grok-install.schema.json",
   "title": "grok-install.yaml",
   "description": "Root config for an installable Grok agent. One per repo.",
   "type": "object",

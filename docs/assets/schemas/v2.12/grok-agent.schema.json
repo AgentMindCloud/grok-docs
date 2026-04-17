@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/latest/grok-agent.schema.json",
+  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/v2.12/grok-agent.schema.json",
   "title": "grok-agent.yaml",
   "description": "Defines one or more agents that share a runtime.",
   "type": "object",

@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  const SCHEMA_DIR = "../assets/schemas/latest/";
+  const SCHEMA_DIR = "../assets/schemas/v2.12/";
   const SCHEMA_MAP = {
     "grok-install": "grok-install.schema.json",
     "grok-agent": "grok-agent.schema.json",

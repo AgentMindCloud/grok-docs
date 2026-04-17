@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/latest/grok-prompts.schema.json",
+  "$id": "https://agentmindcloud.github.io/grok-docs/assets/schemas/v2.12/grok-prompts.schema.json",
   "title": "grok-prompts.yaml",
   "description": "Library of named system prompts referenced by agents via `prompt_ref`.",
   "type": "object",

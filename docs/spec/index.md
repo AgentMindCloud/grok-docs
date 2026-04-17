@@ -77,11 +77,11 @@ enforced by the runtime.
 Every file has a published JSON Schema for editor integration and the
 [live playground](../playground/index.md):
 
-- [`grok-install.schema.json`](../assets/schemas/latest/grok-install.schema.json)
-- [`grok-agent.schema.json`](../assets/schemas/latest/grok-agent.schema.json)
-- [`grok-workflow.schema.json`](../assets/schemas/latest/grok-workflow.schema.json)
-- [`grok-security.schema.json`](../assets/schemas/latest/grok-security.schema.json)
-- [`grok-prompts.schema.json`](../assets/schemas/latest/grok-prompts.schema.json)
+- [`grok-install.schema.json`](../assets/schemas/v2.12/grok-install.schema.json)
+- [`grok-agent.schema.json`](../assets/schemas/v2.12/grok-agent.schema.json)
+- [`grok-workflow.schema.json`](../assets/schemas/v2.12/grok-workflow.schema.json)
+- [`grok-security.schema.json`](../assets/schemas/v2.12/grok-security.schema.json)
+- [`grok-prompts.schema.json`](../assets/schemas/v2.12/grok-prompts.schema.json)
 
 Versioned copies live at `assets/schemas/v<VERSION>/`. A CI job syncs them
 nightly from [`agentmindcloud/grok-yaml-standards`](https://github.com/agentmindcloud/grok-yaml-standards).

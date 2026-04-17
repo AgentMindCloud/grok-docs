@@ -47,7 +47,7 @@ runs it against the official JSON schema, and reports line-scoped errors
 2. The validator infers which spec file you're working on from the
    top-level keys: `spec:` → install, `agents:` → agent, `workflow:` →
    workflow, `prompts:` → prompts, `safety_profile:` → security.
-3. It loads the matching JSON schema from `assets/schemas/latest/` and
+3. It loads the matching JSON schema from `assets/schemas/v2.12/` and
    validates with [`Ajv`](https://ajv.js.org/) (`draft/2020-12`).
 4. Errors are reported by JSON pointer with the offending keyword
    parameters.
@@ -56,11 +56,11 @@ Everything runs in the browser — your YAML never leaves the page.
 
 ## Schemas
 
-- [`grok-install.schema.json`](../assets/schemas/latest/grok-install.schema.json)
-- [`grok-agent.schema.json`](../assets/schemas/latest/grok-agent.schema.json)
-- [`grok-workflow.schema.json`](../assets/schemas/latest/grok-workflow.schema.json)
-- [`grok-security.schema.json`](../assets/schemas/latest/grok-security.schema.json)
-- [`grok-prompts.schema.json`](../assets/schemas/latest/grok-prompts.schema.json)
+- [`grok-install.schema.json`](../assets/schemas/v2.12/grok-install.schema.json)
+- [`grok-agent.schema.json`](../assets/schemas/v2.12/grok-agent.schema.json)
+- [`grok-workflow.schema.json`](../assets/schemas/v2.12/grok-workflow.schema.json)
+- [`grok-security.schema.json`](../assets/schemas/v2.12/grok-security.schema.json)
+- [`grok-prompts.schema.json`](../assets/schemas/v2.12/grok-prompts.schema.json)
 
 Schemas are synced nightly from
 [`agentmindcloud/grok-yaml-standards`](https://github.com/agentmindcloud/grok-yaml-standards)

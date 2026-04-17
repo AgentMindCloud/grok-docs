@@ -109,4 +109,4 @@ CLI:
 grok-install validate .
 ```
 
-Schema: [`grok-install.schema.json`](../assets/schemas/latest/grok-install.schema.json)
+Schema: [`grok-install.schema.json`](../assets/schemas/v2.12/grok-install.schema.json)
