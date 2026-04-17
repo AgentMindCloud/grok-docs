@@ -1,0 +1,64 @@
+name: Sync JSON Schemas from Spec Repo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+  push:
+    paths:
+      - '.github/workflows/sync-schemas.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout grok-docs
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout spec repo
+        uses: actions/checkout@v4
+        with:
+          repository: agentmindcloud/grok-yaml-standards
+          path: spec-repo
+          ref: main
+
+      - name: Read spec version
+        id: spec
+        run: |
+          if [ -f spec-repo/VERSION ]; then
+            VERSION=$(cat spec-repo/VERSION | tr -d '[:space:]')
+          else
+            VERSION=$(grep -E '"?version"?\s*:' spec-repo/schemas/*.json 2>/dev/null \
+              | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "latest")
+          fi
+          echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
+
+      - name: Copy schemas into docs/assets/schemas
+        run: |
+          VERSION="${{ steps.spec.outputs.version }}"
+          mkdir -p docs/assets/schemas/latest
+          rm -f docs/assets/schemas/latest/*.json
+          cp -r spec-repo/schemas/*.json docs/assets/schemas/latest/
+
+          if [ "$VERSION" != "latest" ]; then
+            mkdir -p "docs/assets/schemas/v${VERSION}"
+            rm -f "docs/assets/schemas/v${VERSION}"/*.json
+            cp -r spec-repo/schemas/*.json "docs/assets/schemas/v${VERSION}/"
+          fi
+
+      - name: Commit & push
+        run: |
+          git config user.name  "Schema Bot"
+          git config user.email "bot@agentmindcloud.dev"
+          git add docs/assets/schemas/
+          if git diff --cached --quiet; then
+            echo "No schema changes."
+          else
+            git commit -m "chore(schemas): sync from grok-yaml-standards@${{ steps.spec.outputs.version }}"
+            git push
+          fi
