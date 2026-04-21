@@ -104,4 +104,4 @@ input:
 - `when:` and `input:` expressions are parsed as Jinja at validate time
   — syntax errors fail the build, not the run.
 
-Schema: [`grok-workflow.schema.json`](../assets/schemas/v2.12/grok-workflow.schema.json)
+Schema: [`grok-workflow.schema.json`](../../assets/schemas/v2.12/grok-workflow.schema.json)

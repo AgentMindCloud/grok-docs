@@ -74,4 +74,4 @@ Each key:
 (defined here but never referenced) produce a warning, not an error —
 useful while iterating.
 
-Schema: [`grok-prompts.schema.json`](../assets/schemas/v2.12/grok-prompts.schema.json)
+Schema: [`grok-prompts.schema.json`](../../assets/schemas/v2.12/grok-prompts.schema.json)
