@@ -11,6 +11,8 @@ Live site: <https://agentmindcloud.github.io/grok-docs/>
 - CLI reference for every `grok-install` subcommand.
 - Live client-side YAML validator (playground).
 - Multi-agent orchestration guides.
+- Template gallery (single-agent, multi-step, swarm).
+- Ecosystem notes (xAI SDK, LiteLLM, Semantic Kernel).
 - Adoption guide for xAI.
 
 ## Build locally
@@ -35,7 +37,7 @@ Visit <http://localhost:8000>.
 │   ├── spec/                     # Five YAML file references
 │   ├── guides/                   # Topical deep-dives
 │   ├── cli/                      # CLI reference
-│   ├── templates/                # Gallery overview
+│   ├── gallery/                  # Template gallery (single-agent, multi-step, swarm)
 │   ├── playground/               # Live YAML validator (Monaco + Ajv)
 │   ├── ecosystem/                # xAI SDK, LiteLLM, Semantic Kernel
 │   ├── for-xai/                  # Adoption guide
