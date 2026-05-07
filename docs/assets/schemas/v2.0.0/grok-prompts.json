@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Semantic version of this prompt library file.",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
-      "examples": ["1.2.0"]
+      "examples": ["2.0.0"]
     },
     "author": {
       "type": "string",

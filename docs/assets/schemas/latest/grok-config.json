@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Semantic version of this configuration file.",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
-      "examples": ["1.2.0", "2.0.0"]
+      "examples": ["2.0.0"]
     },
     "author": {
       "type": "string",
@@ -29,7 +29,7 @@
         "description": "Spec identifier with minimum version suffix, e.g. 'grok-install.yaml@1.0+'.",
         "pattern": "^[a-zA-Z0-9._-]+@[0-9]+\\.[0-9]+(\\+|\\.[0-9]+)?$"
       },
-      "examples": [["grok-install.yaml@1.0+", "grok@2026.4+", "grok-yaml-standards@1.2+"]]
+      "examples": [["grok-install.yaml@1.0+", "grok@2026.4+", "grok-yaml-standards@2.0+"]]
     },
     "grok": {
       "type": "object",
