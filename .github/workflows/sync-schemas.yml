@@ -38,17 +38,45 @@ jobs:
           fi
           echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
 
-      - name: Copy schemas into docs/assets/schemas
+      - name: Sync schemas into docs/assets/schemas
         run: |
           VERSION="${{ steps.spec.outputs.version }}"
+          SPEC_SCHEMAS="spec-repo/schemas"
+
+          # 'latest/' always mirrors the current top of the spec repo (today: v2.13).
           mkdir -p docs/assets/schemas/latest
           rm -f docs/assets/schemas/latest/*.json
-          cp -r spec-repo/schemas/*.json docs/assets/schemas/latest/
+          if compgen -G "${SPEC_SCHEMAS}/*.json" > /dev/null; then
+            cp ${SPEC_SCHEMAS}/*.json docs/assets/schemas/latest/
+          fi
 
-          if [ "$VERSION" != "latest" ]; then
-            mkdir -p "docs/assets/schemas/v${VERSION}"
-            rm -f "docs/assets/schemas/v${VERSION}"/*.json
-            cp -r spec-repo/schemas/*.json "docs/assets/schemas/v${VERSION}/"
+          # Versioned mirror (e.g. v2.13/) — pinned copy of the current spec.
+          # Never overwrite v2.12/ — it is frozen and lives in the repo.
+          if [ "$VERSION" != "latest" ] && [ "$VERSION" != "2.12" ] && [ "$VERSION" != "v2.12" ]; then
+            VDIR="docs/assets/schemas/v${VERSION#v}"
+            mkdir -p "$VDIR"
+            rm -f "$VDIR"/*.json
+            if compgen -G "${SPEC_SCHEMAS}/*.json" > /dev/null; then
+              cp ${SPEC_SCHEMAS}/*.json "$VDIR/"
+            fi
+          fi
+
+          # v2.13 explicit mirror — if the upstream repo ships a schemas/v2.13 dir.
+          if [ -d "${SPEC_SCHEMAS}/v2.13" ]; then
+            mkdir -p docs/assets/schemas/v2.13
+            rm -f docs/assets/schemas/v2.13/*.json
+            cp ${SPEC_SCHEMAS}/v2.13/*.json docs/assets/schemas/v2.13/ 2>/dev/null || true
+          fi
+
+          # v2.14 explicit mirror — additive grok-visuals schema lives in a subdir
+          # upstream. Only sync when it exists; do not clobber a local copy otherwise.
+          if [ -d "${SPEC_SCHEMAS}/v2.14" ]; then
+            mkdir -p docs/assets/schemas/v2.14
+            # Keep any local files that the upstream does not ship.
+            for f in ${SPEC_SCHEMAS}/v2.14/*.json; do
+              [ -e "$f" ] || continue
+              cp "$f" docs/assets/schemas/v2.14/
+            done
           fi
 
       - name: Commit & push

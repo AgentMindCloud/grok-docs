@@ -1,16 +1,46 @@
-// grok-docs — live YAML validator playground.
+// docs/javascripts/playground.js
+// grok-docs — live YAML validator + v2.14 visuals preview.
 // Pure client-side. Monaco editor + js-yaml + Ajv against local schemas.
 
 (function () {
   "use strict";
 
-  const SCHEMA_DIR = "../assets/schemas/v2.12/";
+  const SCHEMA_ROOT = "../assets/schemas/";
+
   const SCHEMA_MAP = {
-    "grok-install": "grok-install.schema.json",
-    "grok-agent": "grok-agent.schema.json",
-    "grok-workflow": "grok-workflow.schema.json",
-    "grok-security": "grok-security.schema.json",
-    "grok-prompts": "grok-prompts.schema.json",
+    "v2.12": {
+      dir: "v2.12/",
+      files: {
+        "grok-install": "grok-install.schema.json",
+        "grok-agent": "grok-agent.schema.json",
+        "grok-workflow": "grok-workflow.schema.json",
+        "grok-security": "grok-security.schema.json",
+        "grok-prompts": "grok-prompts.schema.json",
+      },
+    },
+    "latest": {
+      dir: "latest/",
+      files: {
+        "grok-agent": "grok-agent.json",
+        "grok-analytics": "grok-analytics.json",
+        "grok-config": "grok-config.json",
+        "grok-deploy": "grok-deploy.json",
+        "grok-docs": "grok-docs.json",
+        "grok-prompts": "grok-prompts.json",
+        "grok-security": "grok-security.json",
+        "grok-test": "grok-test.json",
+        "grok-tools": "grok-tools.json",
+        "grok-ui": "grok-ui.json",
+        "grok-update": "grok-update.json",
+        "grok-workflow": "grok-workflow.json",
+      },
+    },
+    "v2.14": {
+      dir: "v2.14/",
+      files: {
+        "grok-visuals": "grok-visuals.schema.json",
+      },
+    },
   };
 
   const DEFAULT_YAML = [
@@ -34,7 +64,7 @@
   let editor = null;
   let monaco = null;
   let ajvInstance = null;
-  let schemaCache = {};
+  const schemaCache = {};
   let lastYaml = "";
   let debounceTimer = null;
 
@@ -47,7 +77,21 @@
     await loadMonaco();
     setupEditor(host);
     setupActions(host);
+
+    const initial = pickInitialSample(host);
+    if (initial) editor.setValue(initial);
     scheduleValidation(0);
+  }
+
+  function pickInitialSample(host) {
+    const fromAttr = host.dataset.grokSample;
+    if (fromAttr && SAMPLES[fromAttr]) return SAMPLES[fromAttr];
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const key = q.get("sample");
+      if (key && SAMPLES[key]) return SAMPLES[key];
+    } catch (_) { /* ignore */ }
+    return null;
   }
 
   function loadScript(src) {
@@ -158,7 +202,8 @@
         const blob = new Blob([editor.getValue()], { type: "text/yaml" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        const kind = detectKind(editor.getValue()) || "grok-install";
+        const detected = detectKindAndVersion(editor.getValue());
+        const kind = (detected && detected.kind) || "grok-install";
         a.href = url;
         a.download = `${kind}.yaml`;
         document.body.appendChild(a);
@@ -188,6 +233,8 @@
 
     const panel = document.querySelector("[data-grok-output]");
     const badge = document.querySelector("[data-grok-badge]");
+    const previewHost = document.querySelector("[data-grok-preview]");
+    if (previewHost) previewHost.innerHTML = "";
     if (!panel || !badge) return;
 
     let parsed;
@@ -196,7 +243,7 @@
     } catch (err) {
       renderStatus(badge, "error", "YAML syntax error");
       panel.innerHTML = renderIssue(
-        "error",
+        "err",
         "Cannot parse YAML",
         err.message || String(err)
       );
@@ -209,25 +256,27 @@
       return;
     }
 
-    const kind = detectKind(text, parsed);
-    if (!kind) {
+    const detected = detectKindAndVersion(text, parsed);
+    if (!detected) {
       renderStatus(badge, "warn", "Unknown kind");
       panel.innerHTML = renderIssue(
         "warn",
         "Can't tell which spec file this is",
-        "We infer the file type from the top-level keys. Start with `spec:` (install), `agents:` (agent), `workflow:` (workflow), `prompts:` (prompts), or `safety_profile:` (security)."
+        "We infer the file type from the top-level keys: `spec:` (v2.12 install), `visuals:` (v2.14), `agents:`, `workflow:`, `prompts:`, `safety_profile:`, `grok:` (v2.13 config), `deploy:`, `docs:`, `tools:`, `ui:`, `analytics:`, `test_suites:`, `updates:`."
       );
       return;
     }
 
+    const { kind, version } = detected;
+
     let schema;
     try {
-      schema = await loadSchema(kind);
+      schema = await loadSchema(kind, version);
     } catch (err) {
       renderStatus(badge, "error", "Schema unavailable");
       panel.innerHTML = renderIssue(
-        "error",
-        `Couldn't load ${kind} schema`,
+        "err",
+        `Couldn't load ${kind} schema (${version})`,
         err.message || String(err)
       );
       return;
@@ -240,7 +289,7 @@
     } catch (err) {
       renderStatus(badge, "error", "Schema error");
       panel.innerHTML = renderIssue(
-        "error",
+        "err",
         "Schema failed to compile",
         err.message || String(err)
       );
@@ -249,11 +298,11 @@
 
     const ok = validate(parsed);
     if (ok) {
-      renderStatus(badge, "ok", `Valid ${kind}.yaml`);
+      renderStatus(badge, "ok", `Valid ${kind}.yaml · ${version}`);
       panel.innerHTML =
         `<div class="grok-playground__issue">Detected as <strong>${escapeHtml(
           kind
-        )}.yaml</strong>. All checks passed.</div>` +
+        )}.yaml</strong> (${escapeHtml(version)}). All checks passed.</div>` +
         renderStats(parsed, kind);
     } else {
       renderStatus(badge, "error", `${validate.errors.length} issue(s)`);
@@ -267,6 +316,10 @@
         )
         .join("");
     }
+
+    if (previewHost && kind === "grok-visuals" && parsed && parsed.visuals) {
+      previewHost.innerHTML = renderVisualsPreview(parsed.visuals, ok);
+    }
   }
 
   function getAjv() {
@@ -277,17 +330,31 @@
     return ajvInstance;
   }
 
-  async function loadSchema(kind) {
-    if (schemaCache[kind]) return schemaCache[kind];
-    const url = SCHEMA_DIR + SCHEMA_MAP[kind];
+  async function loadSchema(kind, version) {
+    const cacheKey = `${version}/${kind}`;
+    if (schemaCache[cacheKey]) return schemaCache[cacheKey];
+
+    const versionCfg = SCHEMA_MAP[version];
+    if (!versionCfg) throw new Error(`Unknown schema version: ${version}`);
+    const file = versionCfg.files[kind];
+    if (!file) throw new Error(`${kind} not defined in ${version}`);
+
+    const url = SCHEMA_ROOT + versionCfg.dir + file;
     const res = await fetch(url, { cache: "force-cache" });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const json = await res.json();
-    schemaCache[kind] = json;
+    schemaCache[cacheKey] = json;
     return json;
   }
 
-  function detectKind(text, parsed) {
+  // Returns {kind, version} or null. Version is one of "v2.12", "latest", "v2.14".
+  // Precedence:
+  //   1. `visuals:` top-level key → {grok-visuals, v2.14}.
+  //   2. `spec: grok-install/...` → {grok-install, v2.12}.
+  //   3. `compatibility:` header hint → v2.13 ("latest").
+  //   4. Top-level key heuristic on known v2.13 top-levels.
+  //   5. Legacy v2.12 agent/workflow/prompts/security detection.
+  function detectKindAndVersion(text, parsed) {
     if (!parsed) {
       try {
         parsed = window.jsyaml.load(text);
@@ -296,12 +363,60 @@
       }
     }
     if (!parsed || typeof parsed !== "object") return null;
-    if (typeof parsed.spec === "string" && parsed.spec.startsWith("grok-install/"))
-      return "grok-install";
-    if (Array.isArray(parsed.agents)) return "grok-agent";
-    if (parsed.workflow && typeof parsed.workflow === "object") return "grok-workflow";
-    if (parsed.prompts && typeof parsed.prompts === "object") return "grok-prompts";
-    if (typeof parsed.safety_profile === "string") return "grok-security";
+
+    if (parsed.visuals && typeof parsed.visuals === "object") {
+      return { kind: "grok-visuals", version: "v2.14" };
+    }
+
+    if (typeof parsed.spec === "string" && parsed.spec.startsWith("grok-install/")) {
+      return { kind: "grok-install", version: "v2.12" };
+    }
+
+    const v213 = detectV213Kind(parsed);
+    if (v213) return { kind: v213, version: "latest" };
+
+    // v2.12 fallback heuristics (no compatibility header)
+    if (Array.isArray(parsed.agents)) return { kind: "grok-agent", version: "v2.12" };
+    if (parsed.workflow && typeof parsed.workflow === "object")
+      return { kind: "grok-workflow", version: "v2.12" };
+    if (parsed.prompts && typeof parsed.prompts === "object")
+      return { kind: "grok-prompts", version: "v2.12" };
+    if (typeof parsed.safety_profile === "string")
+      return { kind: "grok-security", version: "v2.12" };
+
+    return null;
+  }
+
+  function detectV213Kind(parsed) {
+    const hasHeader =
+      Array.isArray(parsed.compatibility) &&
+      typeof parsed.version === "string" &&
+      typeof parsed.author === "string";
+
+    // Top-level key → v2.13 kind
+    const TOP_LEVEL = {
+      grok: "grok-config",
+      deploy: "grok-deploy",
+      docs: "grok-docs",
+      test_suites: "grok-test",
+      tools: "grok-tools",
+      ui: "grok-ui",
+      analytics: "grok-analytics",
+      updates: "grok-update",
+    };
+    for (const key of Object.keys(TOP_LEVEL)) {
+      if (parsed[key] && typeof parsed[key] === "object") {
+        return TOP_LEVEL[key];
+      }
+    }
+
+    // With the v2.13 header present, still disambiguate carried files.
+    if (hasHeader) {
+      if (Array.isArray(parsed.agents)) return "grok-agent";
+      if (parsed.workflow && typeof parsed.workflow === "object") return "grok-workflow";
+      if (parsed.prompts && typeof parsed.prompts === "object") return "grok-prompts";
+      if (typeof parsed.safety_profile === "string") return "grok-security";
+    }
     return null;
   }
 
@@ -333,8 +448,15 @@
   }
 
   function renderIssue(kind, title, body) {
-    const cls = kind === "err" ? "grok-playground__issue grok-playground__issue--err" : "grok-playground__issue";
-    return `<div class="${cls}"><strong>${escapeHtml(title)}</strong><br><span style="color:var(--grok-dim); font-size:0.76rem;">${escapeHtml(body)}</span></div>`;
+    const cls =
+      kind === "err"
+        ? "grok-playground__issue grok-playground__issue--err"
+        : "grok-playground__issue";
+    return `<div class="${cls}"><strong>${escapeHtml(
+      title
+    )}</strong><br><span style="color:var(--grok-dim); font-size:0.76rem;">${escapeHtml(
+      body
+    )}</span></div>`;
   }
 
   function renderStats(parsed, kind) {
@@ -344,28 +466,113 @@
       rows.push(["entrypoint", parsed.entrypoint || "—"]);
       rows.push(["env vars", (parsed.env || []).length]);
     } else if (kind === "grok-agent") {
-      rows.push(["agents", parsed.agents.length]);
+      rows.push(["agents", (parsed.agents || []).length]);
       rows.push([
         "tools used",
-        [...new Set(parsed.agents.flatMap((a) => a.tools || []))].length,
+        [...new Set((parsed.agents || []).flatMap((a) => a.tools || []))].length,
       ]);
     } else if (kind === "grok-workflow") {
       rows.push(["steps", (parsed.workflow.steps || []).length]);
-      const conds = (parsed.workflow.steps || []).filter((s) => s.when).length;
-      rows.push(["conditional steps", conds]);
+      rows.push([
+        "conditional steps",
+        (parsed.workflow.steps || []).filter((s) => s.when).length,
+      ]);
     } else if (kind === "grok-prompts") {
       rows.push(["prompts", Object.keys(parsed.prompts).length]);
     } else if (kind === "grok-security") {
       rows.push(["profile", parsed.safety_profile]);
       rows.push(["permissions", (parsed.permissions || []).length]);
       rows.push(["approval-gated", (parsed.requires_approval || []).length]);
+    } else if (kind === "grok-config") {
+      rows.push(["model", (parsed.grok && parsed.grok.default_model) || "—"]);
+      rows.push(["shortcuts", Object.keys(parsed.shortcuts || {}).length]);
+    } else if (kind === "grok-deploy") {
+      rows.push(["targets", Object.keys(parsed.deploy.targets || {}).length]);
+    } else if (kind === "grok-docs") {
+      rows.push(["doc targets", Object.keys(parsed.docs || {}).length]);
+    } else if (kind === "grok-test") {
+      rows.push(["suites", Object.keys(parsed.test_suites || {}).length]);
+    } else if (kind === "grok-tools") {
+      rows.push(["tools", Object.keys(parsed.tools || {}).length]);
+    } else if (kind === "grok-ui") {
+      const u = parsed.ui || {};
+      rows.push(["theme", u.theme || "system"]);
+      rows.push(["widgets", ((u.dashboard && u.dashboard.widgets) || []).length]);
+    } else if (kind === "grok-analytics") {
+      rows.push(["enabled", String(!!(parsed.analytics && parsed.analytics.enabled))]);
+      rows.push(["events", ((parsed.analytics && parsed.analytics.events) || []).length]);
+    } else if (kind === "grok-update") {
+      rows.push(["jobs", Object.keys(parsed.updates || {}).length]);
+    } else if (kind === "grok-visuals") {
+      const v = parsed.visuals || {};
+      rows.push(["type", v.type || "—"]);
+      rows.push(["layout", v.layout || "card"]);
+      rows.push(["alt", v.alt ? `${v.alt.length} chars` : "—"]);
     }
     if (!rows.length) return "";
     return (
       `<div style="margin-top:0.6rem;font-size:0.76rem;color:var(--grok-dim)">` +
-      rows.map(([k, v]) => `<div>${escapeHtml(k)}: <strong style="color:var(--grok-text)">${escapeHtml(String(v))}</strong></div>`).join("") +
+      rows
+        .map(
+          ([k, v]) =>
+            `<div>${escapeHtml(k)}: <strong style="color:var(--grok-text)">${escapeHtml(
+              String(v)
+            )}</strong></div>`
+        )
+        .join("") +
       `</div>`
     );
+  }
+
+  function renderVisualsPreview(v, isValid) {
+    const type = v.type || "image";
+    const layout = v.layout || "card";
+    const theme = v.theme || "auto";
+    const title = v.title ? escapeHtml(v.title) : "";
+    const caption = v.caption ? escapeHtml(v.caption) : "";
+    const description = v.description ? escapeHtml(v.description) : "";
+    const alt = escapeHtml(v.alt || "");
+    const src = escapeHtml(v.src || "");
+    const poster = v.poster ? escapeHtml(v.poster) : "";
+
+    let media = "";
+    if (type === "video") {
+      const posterAttr = poster ? ` poster="${poster}"` : "";
+      media = `<video class="visuals-preview__media" controls preload="metadata"${posterAttr} aria-label="${alt}"><source src="${src}"></video>`;
+    } else if (type === "carousel") {
+      media = `<div class="visuals-preview__media visuals-preview__media--placeholder" role="img" aria-label="${alt}"><span>Carousel · ${src}</span></div>`;
+    } else {
+      media = `<img class="visuals-preview__media" src="${src}" alt="${alt}" loading="lazy" />`;
+    }
+
+    let ctaHtml = "";
+    if (v.cta && v.cta.label && v.cta.url) {
+      ctaHtml = `<a class="visuals-preview__cta" href="${escapeHtml(
+        v.cta.url
+      )}" rel="noopener">${escapeHtml(v.cta.label)}</a>`;
+    }
+
+    const validityBadge = isValid
+      ? `<span class="visuals-preview__badge visuals-preview__badge--ok">schema · ok</span>`
+      : `<span class="visuals-preview__badge visuals-preview__badge--err">schema · error</span>`;
+
+    return [
+      `<figure class="visuals-preview visuals-preview--${escapeHtml(layout)} visuals-preview--${escapeHtml(theme)}" aria-live="polite">`,
+      `  <div class="visuals-preview__head">`,
+      `    <span class="visuals-preview__kind">v2.14 visuals · ${escapeHtml(type)}</span>`,
+      `    ${validityBadge}`,
+      `  </div>`,
+      `  ${media}`,
+      `  <figcaption class="visuals-preview__body">`,
+      title ? `    <h3 class="visuals-preview__title">${title}</h3>` : "",
+      caption ? `    <p class="visuals-preview__caption">${caption}</p>` : "",
+      description ? `    <p class="visuals-preview__desc">${description}</p>` : "",
+      `  </figcaption>`,
+      ctaHtml ? `  <div class="visuals-preview__footer">${ctaHtml}</div>` : "",
+      `</figure>`,
+    ]
+      .filter(Boolean)
+      .join("\n");
   }
 
   function escapeHtml(s) {
@@ -433,6 +640,77 @@
       "  - post_reply",
       "rate_limits:",
       "  tool_calls_per_minute: 15",
+      "",
+    ].join("\n"),
+
+    // v2.14 visuals samples — preview card renders live on the right.
+    "janvisuals": [
+      "version: 2.14.0",
+      "author: \"@JanSol0s\"",
+      "compatibility:",
+      "  - grok-install.yaml@2.14+",
+      "  - grok@2026.4+",
+      "",
+      "visuals:",
+      "  type: image",
+      "  src: https://agentmindcloud.github.io/grok-docs/assets/img/logo.svg",
+      "  alt: \"Grok-install logo — a cyan terminal cursor on a black grid.\"",
+      "  title: \"Install JanVisuals on X\"",
+      "  caption: \"The reference v2.14 visuals example — dark theme, high contrast.\"",
+      "  theme: auto",
+      "  layout: card",
+      "  accessibility:",
+      "    reduced_motion: true",
+      "    contrast_ratio: 7.2",
+      "    captions: false",
+      "  cta:",
+      "    label: \"Install on X\"",
+      "    url: \"https://x.com/intent/post?text=%40grok+install+AgentMindCloud%2Fjanvisuals\"",
+      "",
+    ].join("\n"),
+
+    "visuals-research-swarm": [
+      "version: 2.14.0",
+      "author: \"@JanSol0s\"",
+      "compatibility:",
+      "  - grok-install.yaml@2.14+",
+      "  - grok@2026.4+",
+      "",
+      "visuals:",
+      "  type: image",
+      "  src: https://agentmindcloud.github.io/grok-docs/assets/img/logo.svg",
+      "  alt: \"Three-agent research swarm: researcher, critic, publisher, wired in a feedback loop.\"",
+      "  title: \"Research swarm · v2.14\"",
+      "  caption: \"Researcher → critic → publisher, with a conditional re-research loop.\"",
+      "  layout: banner",
+      "  accessibility:",
+      "    reduced_motion: true",
+      "    contrast_ratio: 5.2",
+      "  cta:",
+      "    label: \"Open in playground\"",
+      "    url: \"../playground/\"",
+      "",
+    ].join("\n"),
+
+    "visuals-reply-bot": [
+      "version: 2.14.0",
+      "author: \"@JanSol0s\"",
+      "compatibility:",
+      "  - grok-install.yaml@2.14+",
+      "  - grok@2026.4+",
+      "",
+      "visuals:",
+      "  type: image",
+      "  src: https://agentmindcloud.github.io/grok-docs/assets/img/logo.svg",
+      "  alt: \"Reply-engagement bot card — an X timeline with a pending approval dialog for an outbound reply.\"",
+      "  title: \"Reply engagement bot\"",
+      "  caption: \"Approval-gated outbound replies. strict safety profile.\"",
+      "  description: \"Watches X mentions on a 5-minute interval and drafts thoughtful replies. Every outbound post pauses for human confirmation.\"",
+      "  layout: inline",
+      "  theme: dark",
+      "  accessibility:",
+      "    reduced_motion: true",
+      "    contrast_ratio: 4.5",
       "",
     ].join("\n"),
   };

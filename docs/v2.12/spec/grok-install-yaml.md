@@ -101,7 +101,7 @@ featured: true
 
 ## Validation
 
-Client-side: use the [playground](../playground/index.md).
+Client-side: use the [playground](../../playground/index.md).
 
 CLI:
 
@@ -109,4 +109,4 @@ CLI:
 grok-install validate .
 ```
 
-Schema: [`grok-install.schema.json`](../assets/schemas/v2.12/grok-install.schema.json)
+Schema: [`grok-install.schema.json`](../../assets/schemas/v2.12/grok-install.schema.json)

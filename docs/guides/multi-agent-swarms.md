@@ -10,8 +10,8 @@ patterns we see most: **pipeline**, **critic loop**, and **fan-out**.
 
 ## The building blocks
 
-- [`grok-agent.yaml`](../spec/grok-agent-yaml.md) declares the roles.
-- [`grok-workflow.yaml`](../spec/grok-workflow-yaml.md) wires them up.
+- [`grok-agent.yaml`](../v2.12/spec/grok-agent-yaml.md) declares the roles.
+- [`grok-workflow.yaml`](../v2.12/spec/grok-workflow-yaml.md) wires them up.
 - `entrypoint: .grok/grok-workflow.yaml` in your root manifest
   activates the workflow runtime.
 
@@ -181,6 +181,6 @@ steps:
 
 ## Further reading
 
-- [`grok-workflow.yaml` reference →](../spec/grok-workflow-yaml.md)
+- [`grok-workflow.yaml` reference →](../v2.12/spec/grok-workflow-yaml.md)
 - [`research-swarm` template](https://github.com/AgentMindCloud/awesome-grok-agents/tree/main/templates/research-swarm)
 - [`reply-engagement-bot` template](https://github.com/AgentMindCloud/awesome-grok-agents/tree/main/templates/reply-engagement-bot)

@@ -89,7 +89,7 @@ rate_limits:
 | `standard` | Read-heavy research. Side-effect tools get logged but aren't blocked by default.   |
 | `strict`   | Every destructive or outbound action requires an explicit entry in `requires_approval`. Rate limits are enforced more tightly. |
 
-Read the deeper guide: [Safety profiles →](../guides/safety-profiles.md)
+Read the deeper guide: [Safety profiles →](../../guides/safety-profiles.md)
 
 ## Validation notes
 
@@ -99,4 +99,4 @@ Read the deeper guide: [Safety profiles →](../guides/safety-profiles.md)
 - `requires_approval` entries must also appear in `permissions` — you
   can't gate something the agent isn't allowed to touch.
 
-Schema: [`grok-security.schema.json`](../assets/schemas/v2.12/grok-security.schema.json)
+Schema: [`grok-security.schema.json`](../../assets/schemas/v2.12/grok-security.schema.json)

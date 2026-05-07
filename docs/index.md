@@ -10,22 +10,23 @@ hide:
 <div class="grok-hero__inner" markdown>
 <div class="grok-hero__copy" markdown>
 
-<span class="grok-hero__eyebrow">Open standard · v2.12</span>
+<span class="grok-hero__eyebrow">Open standard · v2.14 · 12 standards</span>
 
 # One YAML file. <em>Install any AI agent on X.</em>
 
 <p class="grok-hero__subtitle">
 grok-install is the open specification for describing, scanning, and shipping
-Grok-powered agents straight from a GitHub repo. Multi-agent swarms, safety
-profiles, and every tool schema — in plain YAML.
+Grok-powered agents straight from a GitHub repo. Twelve focused YAML standards,
+multi-agent swarms, safety profiles, and — new in v2.14 — a
+first-class <code>visuals:</code> block with live-preview cards.
 </p>
 
 <div class="grok-hero__ctas">
   <a href="getting-started/first-agent/" class="grok-btn grok-btn--primary">
     Build your first agent →
   </a>
-  <a href="spec/grok-install-yaml/" class="grok-btn grok-btn--ghost">
-    Read the spec
+  <a href="v2.14/index.md" class="grok-btn grok-btn--ghost">
+    Read the v2.14 spec
   </a>
 </div>
 
@@ -83,6 +84,12 @@ Run locally with `grok-install run`.
 Ten production-ready templates in
 <a href="https://github.com/AgentMindCloud/awesome-grok-agents">awesome-grok-agents</a>
 — each safety-scanned, CI-validated, and copy-paste ready.
+</div>
+
+<div class="grok-feature" markdown>
+### [Visuals preview · v2.14 →](v2.14/visuals.md)
+Drop a `visuals:` block and your install card renders live — in the
+playground, in galleries, and on X. WCAG 2.2 AA baked in.
 </div>
 
 </div>
@@ -148,9 +155,10 @@ reader.
 <div class="grok-features" markdown>
 
 <div class="grok-feature" markdown>
-### [Full spec reference →](spec/index.md)
-Every field, every default, every constraint across all five YAML file
-types in v2.12.
+### [Full spec reference →](v2.14/index.md)
+Every field, every default, every constraint across the **12 standards**
+of v2.13 plus the additive `visuals:` block in v2.14. Still need the
+five-file v2.12 spec? [Pinned reference →](v2.12/index.md)
 </div>
 
 <div class="grok-feature" markdown>

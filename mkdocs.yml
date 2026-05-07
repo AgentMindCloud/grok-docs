@@ -100,6 +100,14 @@ plugins:
       type: date
       fallback_to_build_date: true
       strict: false
+  - redirects:
+      redirect_maps:
+        spec/index.md: v2.12/spec/index.md
+        spec/grok-install-yaml.md: v2.12/spec/grok-install-yaml.md
+        spec/grok-agent-yaml.md: v2.12/spec/grok-agent-yaml.md
+        spec/grok-workflow-yaml.md: v2.12/spec/grok-workflow-yaml.md
+        spec/grok-security-yaml.md: v2.12/spec/grok-security-yaml.md
+        spec/grok-prompts-yaml.md: v2.12/spec/grok-prompts-yaml.md
 
 markdown_extensions:
   - abbr
@@ -150,13 +158,38 @@ nav:
       - Install the CLI: getting-started/installation.md
       - Your first agent: getting-started/first-agent.md
       - Deploy to production: getting-started/deploy.md
-  - Spec:
-      - spec/index.md
-      - grok-install.yaml: spec/grok-install-yaml.md
-      - grok-agent.yaml: spec/grok-agent-yaml.md
-      - grok-workflow.yaml: spec/grok-workflow-yaml.md
-      - grok-security.yaml: spec/grok-security-yaml.md
-      - grok-prompts.yaml: spec/grok-prompts-yaml.md
+  - v2.14 (latest):
+      - v2.14/index.md
+      - Visuals reference: v2.14/visuals.md
+      - Migration from v2.13: v2.14/migration.md
+      - Accessibility (WCAG 2.2 AA): v2.14/accessibility.md
+  - v2.13:
+      - v2.13/index.md
+      - Release notes: v2.13/release-notes.md
+      - Migration from v2.12: v2.13/migration-from-v2.12.md
+      - Spec:
+          - v2.13/spec/index.md
+          - grok-agent.yaml: v2.13/spec/grok-agent-yaml.md
+          - grok-analytics.yaml: v2.13/spec/grok-analytics-yaml.md
+          - grok-config.yaml: v2.13/spec/grok-config-yaml.md
+          - grok-deploy.yaml: v2.13/spec/grok-deploy-yaml.md
+          - grok-docs.yaml: v2.13/spec/grok-docs-yaml.md
+          - grok-prompts.yaml: v2.13/spec/grok-prompts-yaml.md
+          - grok-security.yaml: v2.13/spec/grok-security-yaml.md
+          - grok-test.yaml: v2.13/spec/grok-test-yaml.md
+          - grok-tools.yaml: v2.13/spec/grok-tools-yaml.md
+          - grok-ui.yaml: v2.13/spec/grok-ui-yaml.md
+          - grok-update.yaml: v2.13/spec/grok-update-yaml.md
+          - grok-workflow.yaml: v2.13/spec/grok-workflow-yaml.md
+  - v2.12 (pinned):
+      - v2.12/index.md
+      - Spec:
+          - v2.12/spec/index.md
+          - grok-install.yaml: v2.12/spec/grok-install-yaml.md
+          - grok-agent.yaml: v2.12/spec/grok-agent-yaml.md
+          - grok-workflow.yaml: v2.12/spec/grok-workflow-yaml.md
+          - grok-security.yaml: v2.12/spec/grok-security-yaml.md
+          - grok-prompts.yaml: v2.12/spec/grok-prompts-yaml.md
   - Guides:
       - guides/index.md
       - Multi-agent swarms: guides/multi-agent-swarms.md
@@ -171,7 +204,9 @@ nav:
       - Single-agent: gallery/single-agent.md
       - Multi-step: gallery/multi-step.md
       - Swarm: gallery/swarm.md
-  - Playground: playground/index.md
+  - Playground:
+      - playground/index.md
+      - v2.14 visuals: playground/v2.14.md
   - Ecosystem:
       - ecosystem/index.md
       - xAI SDK: ecosystem/xai-sdk.md

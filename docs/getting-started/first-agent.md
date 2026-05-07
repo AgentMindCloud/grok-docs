@@ -47,7 +47,7 @@ env:
   - XAI_API_KEY
 ```
 
-Everything here is [documented in the spec](../spec/grok-install-yaml.md).
+Everything here is [documented in the spec](../v2.12/spec/grok-install-yaml.md).
 Notice: no hard-coded keys, no secrets — just the **name** of the env
 var the agent will read.
 
@@ -65,7 +65,7 @@ agents:
 
 One agent called `greeter`, using the `grok-4` model, reading its system
 prompt from `grok-prompts.yaml`, allowed to call the `now` tool, capped
-at 4 turns. [Full spec →](../spec/grok-agent-yaml.md)
+at 4 turns. [Full spec →](../v2.12/spec/grok-agent-yaml.md)
 
 ## Step 4 — Inspect the prompt (30 sec)
 
